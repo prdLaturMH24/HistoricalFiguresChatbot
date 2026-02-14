@@ -1,0 +1,6 @@
+/.env
+/.gradio
+/.vscode
+/history_chatbot.zip
+/history_chatbot_chroma_db
+/venv
