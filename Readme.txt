@@ -2,14 +2,14 @@ Historical Figures Chatbot - Readme
 
 Overview:
 This repository contains `history_chatbot.py`, a Gradio RAG chatbot that:
-- Loads `docs/historical_figures.pdf` and indexes it into a Chroma vector DB
+- Loads `docs/historical_figures.pdf` and indexes it into a FAISS vector DB
 - Uses Ollama embeddings and Ollama chat model for responses
 - Tracks conversation history in memory and serves a Gradio UI on port 7860
 
 Prerequisites:
-- Python 3.10+ (3.11 recommended)
+- Python 3.10+ (3.11 recommended, but avoid 3.14 due to compatibility issues)
 - Git (optional)
-- (Optional) Ollama installed and running if you use `ChatOllama`/`OllamaEmbeddings` locally
+- Ollama installed and running
 
 Setup (Windows example):
 1. Create and activate a virtual environment
@@ -22,14 +22,17 @@ Setup (Windows example):
 3. Ensure the PDF exists at `docs/historical_figures.pdf`.
    If not present, place the PDF at that path or update `PDF_PATH` in `history_chatbot.py`.
 
-4. (If using Ollama locally) Make sure Ollama daemon is running and the required models are available:
-   - Embedding model: `granite-embedding:latest` (or update `EMBED_MODEL`)
-   - LLM model: `llama3` (or update `LLM_MODEL`)
-   See Ollama docs for installing/pulling models.
+4. Install Ollama:
+   - Download and install Ollama from https://ollama.ai/download/windows
+   - After installation, open a terminal and run: `ollama serve` (this starts the Ollama server)
 
-5. Create .env file
-Environment variables (optional but recommended):
-- LANGCHAIN_API_KEY: Your LangChain/LangSmith API key (if using tracing or cloud services)
+5. Pull the required models:
+   - `ollama pull granite-embedding:latest` (for embeddings)
+   - `ollama pull llama3` (for the chat model)
+
+6. Create .env file (optional)
+Environment variables:
+- LANGCHAIN_API_KEY: Your LangChain/LangSmith API key (optional, for tracing)
 - LANGCHAIN_PROJECT: Project name (defaults to `HistoricalFiguresChatbot`)
 - LANGCHAIN_TRACING_V2: Set to `true` or `false` to enable/disable tracing
 
@@ -45,12 +48,12 @@ Run the app:
 
 Notes & Troubleshooting:
 - PDF not found: The script raises FileNotFoundError if `docs/historical_figures.pdf` is missing.
-- Ollama connection errors: Verify Ollama is running or change to a supported LLM/embedding provider in code.
-- Chroma DB: The vector DB is persisted under `history_chatbot_chroma_db`. Remove that folder to force re-indexing.
+- Ollama connection errors: Ensure Ollama is running (`ollama serve`) and models are pulled.
+- FAISS DB: The vector DB is persisted under `history_chatbot_chroma_db`. Remove that folder to force re-indexing.
 - Prompt/input errors (langchain): Ensure the prompt input types are mapping/dict as required by the prompt/runnable.
 
 File references:
 - `history_chatbot.py` (main script)
 - `requirements.txt` (dependencies)
 - `docs/historical_figures.pdf` (content source)
-- `history_chatbot_chroma_db/` (Chroma persistence)
+- `history_chatbot_chroma_db/` (FAISS persistence)

@@ -4,7 +4,7 @@ Historical Figures Chatbot with LangChain RAG and LangSmith Tracing.
 This chatbot uses:
 - PDF ingestion with PyPDFLoader
 - CharacterTextSplitter for chunking
-- Chroma vector store with OllamaEmbeddings
+- FAISS vector store with OllamaEmbeddings
 - Ollama LLM (llama3 or mistral)
 - LangSmith for tracing
 - Gradio for UI
@@ -21,11 +21,10 @@ load_dotenv()
 os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2", "true")
 os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGCHAIN_PROJECT", "HistoricalFiguresChatbot")
 os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
-
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.chat_history import InMemoryChatMessageHistory
@@ -88,14 +87,17 @@ class HistoricalFiguresChatbot:
             model=EMBED_MODEL
         )
         
-        # Create or load Chroma vector store
+        # Create or load FAISS vector store
         print("Creating vector store...")
-        self.vector_store = Chroma.from_documents(
-            documents=chunks,
-            embedding=embeddings,
-            collection_name="historical_figures",
-            persist_directory=CHROMA_DIR
-        )
+        if Path(CHROMA_DIR).exists():
+            print("Loading existing vector store...")
+            self.vector_store = FAISS.load_local(CHROMA_DIR, embeddings, allow_dangerous_deserialization=True)
+        else:
+            self.vector_store = FAISS.from_documents(
+                documents=chunks,
+                embedding=embeddings
+            )
+            self.vector_store.save_local(CHROMA_DIR)
         print("Vector store initialized successfully")
 
     def qa_chain_invoke(self, query: str):

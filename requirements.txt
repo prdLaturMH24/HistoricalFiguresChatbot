@@ -2,7 +2,7 @@ python-dotenv
 langsmith
 langchain
 langchain-community
-langchain-chroma
 langchain-ollama
+faiss-cpu
 pypdf
 gradio
